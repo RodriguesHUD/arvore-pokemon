@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { TopBar } from "./components/TopBar";
 import { EvolutionChainCard } from "./components/EvolutionChainCard";
 import type { EvolutionChainVM, NamedAPIResource } from "./types/pokeapi";
+import { ToastAlert } from "./components/ToastAlert";
 import {
   getEvolutionChainList,
   getChainVMByChainUrl,
@@ -27,6 +28,19 @@ export default function App() {
   const [activeSearchCardId, setActiveSearchCardId] = useState<string | null>(
     null,
   );
+
+  const [toast, setToast] = useState<null | {
+    id: string;
+    type: "error" | "info" | "success";
+    title: string;
+    message?: string;
+  }>(null);
+
+  useEffect(() => {
+    if (!toast) return;
+    const t = window.setTimeout(() => setToast(null), 4000);
+    return () => window.clearTimeout(t);
+  }, [toast]);
 
   const existingKeysRef = useRef<Set<string>>(new Set());
   useEffect(() => {
@@ -159,20 +173,16 @@ export default function App() {
             : e.message
           : "Falha na busca.";
 
-      setCards((prev) =>
-        prev.map((c) =>
-          c.id === tempId
-            ? {
-                id: tempId,
-                status: "error",
-                title: `Busca: ${normalizedName}`,
-                message: msg,
-              }
-            : c,
-        ),
-      );
+      setCards((prev) => prev.filter((c) => c.id !== tempId));
+      setActiveSearchCardId(null);
       setFilterChainKey(null);
-      setActiveSearchCardId(tempId);
+
+      setToast({
+        id: `toast-${Date.now()}`,
+        type: "error",
+        title: "Busca",
+        message: msg,
+      });
     } finally {
       setSearchingCount((n) => Math.max(0, n - 1));
     }
@@ -181,6 +191,15 @@ export default function App() {
   return (
     <div className="min-h-screen">
       <div className="fixed inset-0 -z-10 bg-[radial-gradient(80%_60%_at_50%_0%,rgba(56,189,248,0.18),transparent_60%),radial-gradient(70%_55%_at_20%_20%,rgba(168,85,247,0.18),transparent_60%),radial-gradient(70%_55%_at_80%_30%,rgba(34,197,94,0.12),transparent_60%),linear-gradient(to_bottom,rgba(2,6,23,1),rgba(15,23,42,1))]" />
+
+      {toast ? (
+        <ToastAlert
+          type={toast.type}
+          title={toast.title}
+          message={toast.message}
+          onClose={() => setToast(null)}
+        />
+      ) : null}
 
       <TopBar
         total={MAX_CHAINS}

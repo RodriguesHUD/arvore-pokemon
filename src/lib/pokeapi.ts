@@ -9,7 +9,7 @@ import type {
   NamedAPIResource,
 } from "../types/pokeapi";
 
-const BASE = "https://pokeapi.co/api/v2";
+const URL = "https://pokeapi.co/api/v2";
 
 async function fetchJSON<T>(url: string): Promise<T> {
   const res = await fetch(url);
@@ -24,7 +24,7 @@ const chainCache = new Map<string, EvolutionChain>();
 export async function getEvolutionChainList(
   limit = 20,
 ): Promise<PaginatedResponse<NamedAPIResource>> {
-  return fetchJSON(`${BASE}/evolution-chain?limit=${limit}`);
+  return fetchJSON(`${URL}/evolution-chain?limit=${limit}`);
 }
 
 export async function getEvolutionChainByUrl(
@@ -44,7 +44,7 @@ export async function getPokemon(name: string): Promise<Pokemon> {
   const cached = pokemonCache.get(key);
   if (cached) return cached;
 
-  const data = await fetchJSON<Pokemon>(`${BASE}/pokemon/${key}`);
+  const data = await fetchJSON<Pokemon>(`${URL}/pokemon/${key}`);
   pokemonCache.set(key, data);
   return data;
 }
@@ -54,9 +54,7 @@ export async function getPokemonSpecies(name: string): Promise<PokemonSpecies> {
   const cached = speciesCache.get(key);
   if (cached) return cached;
 
-  const data = await fetchJSON<PokemonSpecies>(
-    `${BASE}/pokemon-species/${key}`,
-  );
+  const data = await fetchJSON<PokemonSpecies>(`${URL}/pokemon-species/${key}`);
   speciesCache.set(key, data);
   return data;
 }
