@@ -102,3 +102,5 @@ Componentes visuais (UI) sem responsabilidade de rede
 
 src/App.tsx
 Orquestração do fluxo: carregamento inicial, busca, filtro e estado da tela
+
+Para rodar o projeto localmente utilize o comando: npm run dev
